@@ -33,8 +33,16 @@ func main() {
 		go count(lang.Name, lang.URL, c)
 	})
 
+	// time.After creates a channel
+	timeout := time.After(2 * time.Second)
 	for i := 0; i < n; i++ {
-		fmt.Print(<-c)
+		select {
+		case result := <-c:
+			fmt.Print(result)
+		case <-timeout:
+			fmt.Println("Time out")
+			return
+		}
 	}
 
 	fmt.Printf("%.2fs total\n", time.Since(start).Seconds())
