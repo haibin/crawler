@@ -14,17 +14,15 @@ type Lang struct {
 	URL  string
 }
 
-var langs []Lang
+var langs = []Lang{
+	{"Python", 1991, "http://python.org/"},
+	{"Ruby", 1995, "http://www.ruby-lang.org/en/"},
+	{"Scala", 2003, "http://www.scala-lang.org/"},
+	{"GO", 2009, "http://golang.org/"},
+}
 
 func main() {
 	start := time.Now()
-
-	langs = []Lang{
-		{"Python", 1991, "http://python.org/"},
-		{"Ruby", 1995, "http://www.ruby-lang.org/en/"},
-		{"Scala", 2003, "http://www.scala-lang.org/"},
-		{"GO", 2009, "http://golang.org/"},
-	}
 
 	c := make(chan string)
 	n := 0
