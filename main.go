@@ -26,9 +26,17 @@ func main() {
 		{"GO", 2009, "http://golang.org/"},
 	}
 
+	c := make(chan string)
+	n := 0
 	do(func(lang Lang) {
-		count(lang.Name, lang.URL)
+		n++
+		go count(lang.Name, lang.URL, c)
 	})
+
+	for i := 0; i < n; i++ {
+		fmt.Print(<-c)
+	}
+
 	fmt.Printf("%.2fs total\n", time.Since(start).Seconds())
 }
 
@@ -38,14 +46,14 @@ func do(f func(Lang)) {
 	}
 }
 
-func count(name, url string) {
+func count(name, url string, c chan<- string) {
 	start := time.Now()
 	r, err := http.Get(url)
 	if err != nil {
-		fmt.Printf("%s: %s", name, err)
+		c <- fmt.Sprintf("%s: %s", name, err)
 		return
 	}
 	n, _ := io.Copy(ioutil.Discard, r.Body)
 	r.Body.Close()
-	fmt.Printf("%s %d [%.2fs]\n", name, n, time.Since(start).Seconds())
+	c <- fmt.Sprintf("%s %d [%.2fs]\n", name, n, time.Since(start).Seconds())
 }
