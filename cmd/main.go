@@ -10,16 +10,21 @@ import (
 func main() {
 	start := time.Now()
 
+	var langs = []crawler.Lang{
+		{"Python", "http://python.org/"},
+		{"Ruby", "http://www.ruby-lang.org/en/"},
+		{"Scala", "http://www.scala-lang.org/"},
+		{"GO", "http://golang.org/"},
+	}
+
+	var cl crawler.Crawler = crawler.New(langs)
+
 	c := make(chan string)
-	n := 0
-	crawler.Do(func(lang crawler.Lang) {
-		n++
-		go crawler.Count(lang.Name, lang.URL, c)
-	})
+	cl.Do(c)
 
 	// time.After creates a channel
-	timeout := time.After(2 * time.Second)
-	for i := 0; i < n; i++ {
+	timeout := time.After(3 * time.Second)
+	for i := 0; i < len(langs); i++ {
 		select {
 		case result := <-c:
 			fmt.Print(result)

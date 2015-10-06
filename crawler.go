@@ -13,27 +13,34 @@ type Lang struct {
 	URL  string
 }
 
-var langs = []Lang{
-	{"Python", "http://python.org/"},
-	{"Ruby", "http://www.ruby-lang.org/en/"},
-	{"Scala", "http://www.scala-lang.org/"},
-	{"GO", "http://golang.org/"},
+type Crawler interface {
+	Do(c chan<- string)
 }
 
-func Do(f func(Lang)) {
-	for _, l := range langs {
-		f(l)
+func New(langs []Lang) Crawler {
+	return &simpleCrawler{langs}
+}
+
+type simpleCrawler struct {
+	langs []Lang
+}
+
+func (cl *simpleCrawler) Do(c chan<- string) {
+	for _, l := range cl.langs {
+		go fetch(l.Name, l.URL, c)
 	}
 }
 
-func Count(name, url string, c chan<- string) {
+func fetch(name, url string, c chan<- string) {
 	start := time.Now()
-	r, err := http.Get(url)
+	res, err := http.Get(url)
 	if err != nil {
 		c <- fmt.Sprintf("%s: %s", name, err)
 		return
 	}
-	n, _ := io.Copy(ioutil.Discard, r.Body)
-	r.Body.Close()
+	// res.Body is an io.ReadCloser
+	// Discard is an io.Writer
+	n, _ := io.Copy(ioutil.Discard, res.Body)
+	res.Body.Close()
 	c <- fmt.Sprintf("%s %d [%.2fs]\n", name, n, time.Since(start).Seconds())
 }
