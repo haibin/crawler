@@ -8,15 +8,18 @@ import (
 	"time"
 )
 
+// Lang has a name and a url
 type Lang struct {
 	Name string
 	URL  string
 }
 
+// Crawler is the interface
 type Crawler interface {
-	Do(c chan<- string)
+	Crawl(c chan<- string)
 }
 
+// New returns a crawler
 func New(langs []Lang) Crawler {
 	return &simpleCrawler{langs}
 }
@@ -25,7 +28,7 @@ type simpleCrawler struct {
 	langs []Lang
 }
 
-func (cl *simpleCrawler) Do(c chan<- string) {
+func (cl *simpleCrawler) Crawl(c chan<- string) {
 	for _, l := range cl.langs {
 		go fetch(l.Name, l.URL, c)
 	}

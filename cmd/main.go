@@ -17,10 +17,10 @@ func main() {
 		{"GO", "http://golang.org/"},
 	}
 
-	var cl crawler.Crawler = crawler.New(langs)
+	crawler := crawler.New(langs)
 
 	c := make(chan string)
-	cl.Do(c)
+	crawler.Crawl(c)
 
 	// time.After creates a channel
 	timeout := time.After(3 * time.Second)
